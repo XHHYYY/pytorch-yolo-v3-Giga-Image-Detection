@@ -76,6 +76,7 @@ def arg_parse():
     
     return parser.parse_args()
 
+
 if __name__ ==  '__main__':
     args = arg_parse()
     
@@ -134,10 +135,13 @@ if __name__ ==  '__main__':
     read_dir = time.time()
     #Detection phase
     try:
-        imlist = [osp.join(osp.realpath('.'), images, img) for img in os.listdir(images) if os.path.splitext(img)[1] == '.png' or os.path.splitext(img)[1] =='.jpeg' or os.path.splitext(img)[1] =='.jpg']
+        # ! changes
+        # imlist = [osp.join(osp.realpath('.'), images, img) for img in os.listdir(images) if os.path.splitext(img)[1] == '.png' or os.path.splitext(img)[1] =='.jpeg' or os.path.splitext(img)[1] =='.jpg']
+        imlist = [osp.join(images, img) for img in os.listdir(images) if os.path.splitext(img)[1] == '.png' or os.path.splitext(img)[1] =='.jpeg' or os.path.splitext(img)[1] =='.jpg']
     except NotADirectoryError:
         imlist = []
-        imlist.append(osp.join(osp.realpath('.'), images))
+        # imlist.append(osp.join(osp.realpath('.'), images))
+        imlist.append(osp.join(images))
     except FileNotFoundError:
         print ("No file or directory with the name {}".format(images))
         exit()
@@ -281,15 +285,15 @@ if __name__ ==  '__main__':
     
     draw = time.time()
 
-
+# todo 这里可以修改框大小和字体
     def write(x, batches, results):
-        c1 = tuple(x[1:3].int())
-        c2 = tuple(x[3:5].int())
+        c1 = tuple(map(int, x[1:3]))
+        c2 = tuple(map(int, x[3:5]))
         img = results[int(x[0])]
         cls = int(x[-1])
         label = "{0}".format(classes[cls])
         color = random.choice(colors)
-        cv2.rectangle(img, c1, c2,color, 1)
+        cv2.rectangle(img, c1, c2,color, 5)
         t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
         c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
         cv2.rectangle(img, c1, c2,color, -1)
@@ -298,7 +302,7 @@ if __name__ ==  '__main__':
     
             
     list(map(lambda x: write(x, im_batches, orig_ims), output))
-      
+    
     det_names = pd.Series(imlist).apply(lambda x: "{}/det_{}".format(args.det,x.split("/")[-1]))
     
     list(map(cv2.imwrite, det_names, orig_ims))
