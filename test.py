@@ -1,3 +1,3 @@
-a = 10
-a
-a
+import json
+test = {}
+test['']

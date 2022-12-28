@@ -15,6 +15,7 @@ import pandas as pd
 import random 
 import pickle as pkl
 import itertools
+import json
 
 class test_net(nn.Module):
     def __init__(self, num_layers, input_size):
@@ -120,6 +121,7 @@ class detector():
         try:
             # ! changes
             # imlist = [osp.join(osp.realpath('.'), images, img) for img in os.listdir(images) if os.path.splitext(img)[1] == '.png' or os.path.splitext(img)[1] =='.jpeg' or os.path.splitext(img)[1] =='.jpg']
+            self.images = images
             self.imlist = [osp.join(images, img) for img in os.listdir(images) if os.path.splitext(img)[1] == '.png' or os.path.splitext(img)[1] =='.jpeg' or os.path.splitext(img)[1] =='.jpg']
         except NotADirectoryError:
             self.imlist = []
@@ -250,6 +252,8 @@ class detector():
         
         self.draw = time.time()
         
+    # ! new self function
+        
     # todo 这里可以修改框大小和字体
     def write(self, x, batches, results):
         c1 = tuple(map(int, x[1:3]))
@@ -263,6 +267,12 @@ class detector():
         c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
         cv2.rectangle(img, c1, c2,color, -1)
         cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1)
+        
+        with open('./results/result.csv', 'a+') as f:
+            np.savetxt(f, [c1, c2, (cls, 0), (int(self.images[-7]), int(self.images[-5]))], fmt='%d', delimiter=',')
+
+        
+        
         return img
     
     
@@ -275,18 +285,18 @@ class detector():
         
         end = time.time()
         
-        print()
-        print("SUMMARY")
-        print("----------------------------------------------------------")
-        print("{:25s}: {}".format("Task", "Time Taken (in seconds)"))
-        print()
-        print("{:25s}: {:2.3f}".format("Reading addresses", self.load_batch - self.read_dir))
-        print("{:25s}: {:2.3f}".format("Loading batch", self.start_det_loop - self.load_batch))
-        print("{:25s}: {:2.3f}".format("Detection (" + str(len(self.imlist)) +  " images)", self.output_recast - self.start_det_loop))
-        print("{:25s}: {:2.3f}".format("Output Processing", self.class_load - self.output_recast))
-        print("{:25s}: {:2.3f}".format("Drawing Boxes", end - self.draw))
-        print("{:25s}: {:2.3f}".format("Average time_per_img", (end - self.load_batch)/len(self.imlist)))
-        print("----------------------------------------------------------")
+        # print()
+        # print("SUMMARY")
+        # print("----------------------------------------------------------")
+        # print("{:25s}: {}".format("Task", "Time Taken (in seconds)"))
+        # print()
+        # print("{:25s}: {:2.3f}".format("Reading addresses", self.load_batch - self.read_dir))
+        # print("{:25s}: {:2.3f}".format("Loading batch", self.start_det_loop - self.load_batch))
+        # print("{:25s}: {:2.3f}".format("Detection (" + str(len(self.imlist)) +  " images)", self.output_recast - self.start_det_loop))
+        # print("{:25s}: {:2.3f}".format("Output Processing", self.class_load - self.output_recast))
+        # print("{:25s}: {:2.3f}".format("Drawing Boxes", end - self.draw))
+        # print("{:25s}: {:2.3f}".format("Average time_per_img", (end - self.load_batch)/len(self.imlist)))
+        # print("----------------------------------------------------------")
 
         
         torch.cuda.empty_cache()
