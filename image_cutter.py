@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 def cut(a = 10, b = 10, img = None) -> None:
     if img is None:
@@ -11,15 +12,19 @@ def cut(a = 10, b = 10, img = None) -> None:
     
     for i in range(a):
         for j in range(b):
-            cv2.imwrite('./cutted/' + (str(1) if a == 10 else str(2))  + '/' + str(i) + '_' + str(j) + '.jpg', 
-                        origin[i*h : i*h+h, j*w : j*w+w] if (i!=9 and j !=9) else
-                        origin[i*h : i*h+h, j*w : ] if j == 9 else
-                        origin[i*h : , j*w : j*w+w] if i == 9 else
+            cv2.imwrite('./cutted/' + (str(1) if a == 10 else str(2))  + '/' + (str(1) if a == 10 else str(2)) + '_' + str(i) + '_' + str(j) + '.jpg', 
+                        origin[i*h : i*h+h, j*w : j*w+w] if (i!=11 and j !=11) else
+                        origin[i*h : i*h+h, j*w : ] if j == 11 else
+                        origin[i*h : , j*w : j*w+w] if i == 11 else
                         origin[i*h : , j*w : ])
-    if a == 9:
+    if a == 11:
         return
-    cut(a = 9, b = 9, img = origin[h//2 : -1-h//2, w//2 : -1-w//2])
-    
+    temp1 = np.zeros((H, w//2, 3))
+    temp2 = np.zeros((h//2, W+2*(w//2), 3))
+    padding = np.hstack((temp1, origin, temp1))
+    padding = np.vstack((temp2, padding, temp2))
+    # cut(a = 9, b = 9, img = origin[h//2 : -1-h//2, w//2 : -1-w//2])
+    cut(a = 11, b = 11, img = padding)
     return
 
 # 演示窗口重叠
