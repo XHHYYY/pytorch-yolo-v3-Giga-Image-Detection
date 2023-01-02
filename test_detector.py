@@ -264,10 +264,6 @@ class detector():
         label = "{0}".format(self.classes[cls])
         color = random.choice(self.colors)
         cv2.rectangle(img, c1, c2,color, 5)
-        t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
-        c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
-        cv2.rectangle(img, c1, c2,color, -1)
-        cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1)
         
         # output to file
         with open('./results/original_result{}.csv'.format(self.det[-2]), 'a+') as f:
@@ -275,6 +271,13 @@ class detector():
                 a = image_num[2]
                 b = "".join(image_num[3:])
                 np.savetxt(f, [c1, c2, (cls, 0), (int(a), int(b))], fmt='%d', delimiter=',')
+        
+        t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+        c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
+        cv2.rectangle(img, c1, c2,color, -1)
+        cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1)
+        
+        
 
         
         

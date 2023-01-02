@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import json
 
 def cut(a = 10, b = 10, img = None) -> None:
     if img is None:
@@ -9,6 +10,11 @@ def cut(a = 10, b = 10, img = None) -> None:
     H, W = origin.shape[0:2]
     h = H // a
     w = W // b
+    
+    data = {"a" : a, "b" : b, "H" : H, "W": W, "h" : h, "w" : w}
+    with open('./results/config.json', 'w') as file:
+        json.dump(data, file, indent=4)
+    file.close()
     
     for i in range(a):
         for j in range(b):
@@ -26,6 +32,8 @@ def cut(a = 10, b = 10, img = None) -> None:
     # cut(a = 9, b = 9, img = origin[h//2 : -1-h//2, w//2 : -1-w//2])
     cut(a = 11, b = 11, img = padding)
     return
+
+
 
 # 演示窗口重叠
 # def draw_windows():
