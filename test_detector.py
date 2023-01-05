@@ -266,11 +266,11 @@ class detector():
         cv2.rectangle(img, c1, c2,color, 5)
         
         # output to file
-        with open('./results/original_result{}.csv'.format(self.det[-2]), 'a+') as f:
+        with open('./results/final_result{}.csv'.format(self.det[-2]), 'a+') as f:
                 image_num = list(filter(lambda x: x.isdigit(), self.images))
                 a = image_num[2]
                 b = "".join(image_num[3:])
-                np.savetxt(f, [c1, c2, (cls, 0), (int(a), int(b))], fmt='%d', delimiter=',')
+                np.savetxt(f, np.column_stack([c1[0], c1[1], c2[0], c2[1], cls, 0, int(a), int(b)]), fmt='%d', delimiter=',')
         
         t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
         c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
