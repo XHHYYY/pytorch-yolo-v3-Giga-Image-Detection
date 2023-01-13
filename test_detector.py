@@ -79,6 +79,16 @@ def arg_parse():
 
 
 class detector():
+    '''
+    - 将原项目`detect.py`实现为`detector`类
+    - 类内函数：
+        - `__init__()`: 加载基本信息，加载网络
+        - `read_images()`: 加载待测图片
+        - `detect_objects()`: 检测图片内物体
+        - `write()`: 将结果写入文件、画bbox
+        - `output_result()`: 将检测后的图片输出至det文件夹
+    '''
+    
     def __init__(
         self, det='det', bs=1, confidence=0.5, nms_thresh=0.4, 
     cfgfile='cfg/yolov3.cfg', weightsfile='yolov3.weights', reso='416', scales='1,2,3'
@@ -118,6 +128,9 @@ class detector():
         
         
     def read_images(self, images='imgs') -> None:
+        '''
+        从输入路径读取图片
+        '''
         try:
             # ! changes
             # imlist = [osp.join(osp.realpath('.'), images, img) for img in os.listdir(images) if os.path.splitext(img)[1] == '.png' or os.path.splitext(img)[1] =='.jpeg' or os.path.splitext(img)[1] =='.jpg']
@@ -136,6 +149,9 @@ class detector():
             
             
     def detect_objects(self):
+        '''
+        检测图片内的物体
+        '''
         self.load_batch = time.time()
     
         batches = list(map(prep_image, self.imlist, [self.inp_dim for x in range(len(self.imlist))]))
@@ -255,36 +271,42 @@ class detector():
         
     # todo 这里可以修改框大小和字体
     def write(self, x, batches, results):
+        '''
+        - 将bbox画在检测图片上
+        - 将bbox信息输出至文件( './results/final_result1.csv' 或 './results/final_result2.csv' )
+        '''
         c1 = tuple(map(int, x[1:3]))
         c2 = tuple(map(int, x[3:5]))
         img = results[int(x[0])]
         cls = int(x[-1])
+        # 如果不是人或车则不画框，不保存
         if not ((cls==0 or cls==2) and (c2[0]-c1[0])*(c2[1]-c1[1]) > 100):
             return
+        # 画框
         label = "{0}".format(self.classes[cls])
         color = random.choice(self.colors)
         cv2.rectangle(img, c1, c2,color, 5)
         
-        # output to file
+        # 将bbox信息输出至文件
         with open('./results/final_result{}.csv'.format(self.det[-2]), 'a+') as f:
                 image_num = list(filter(lambda x: x.isdigit(), self.images))
                 a = image_num[2]
                 b = "".join(image_num[3:])
                 np.savetxt(f, np.column_stack([c1[0], c1[1], c2[0], c2[1], cls, 0, int(a), int(b)]), fmt='%d', delimiter=',')
         
+        # 框上标注label
         t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
         c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
         cv2.rectangle(img, c1, c2,color, -1)
         cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1)
-        
-        
 
-        
-        
         return img
     
     
     def output_result(self):
+        '''
+        将检测后的图片保存至检测结果文件夹( './det/1/' 或 './det/2/' )
+        '''
         list(map(lambda x: self.write(x, self.im_batches, self.orig_ims), self.output))
         
         det_names = pd.Series(self.imlist).apply(lambda x: "{}/det_{}".format(self.det,x.split("/")[-1]))
@@ -292,20 +314,6 @@ class detector():
         list(map(cv2.imwrite, det_names, self.orig_ims))
         
         end = time.time()
-        
-        # print()
-        # print("SUMMARY")
-        # print("----------------------------------------------------------")
-        # print("{:25s}: {}".format("Task", "Time Taken (in seconds)"))
-        # print()
-        # print("{:25s}: {:2.3f}".format("Reading addresses", self.load_batch - self.read_dir))
-        # print("{:25s}: {:2.3f}".format("Loading batch", self.start_det_loop - self.load_batch))
-        # print("{:25s}: {:2.3f}".format("Detection (" + str(len(self.imlist)) +  " images)", self.output_recast - self.start_det_loop))
-        # print("{:25s}: {:2.3f}".format("Output Processing", self.class_load - self.output_recast))
-        # print("{:25s}: {:2.3f}".format("Drawing Boxes", end - self.draw))
-        # print("{:25s}: {:2.3f}".format("Average time_per_img", (end - self.load_batch)/len(self.imlist)))
-        # print("----------------------------------------------------------")
-
         
         torch.cuda.empty_cache()
         
