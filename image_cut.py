@@ -22,11 +22,8 @@ def cut(a = 10, b = 10, img = None) -> None:
     h = H // a
     w = W // b
     
-    # 将切割图片信息存储进`config.json`
-    data = {"a" : a, "b" : b, "H" : H, "W": W, "h" : h, "w" : w}
-    with open('./results/config.json', 'w') as file:
-        json.dump(data, file, indent=4)
-    file.close()
+    
+
     
     # 切割图片
     for i in range(a):
@@ -40,10 +37,23 @@ def cut(a = 10, b = 10, img = None) -> None:
     if a == 11:
         return
     # 否则对原图做padding
+    
+    # 将切割图片信息存储进`config.json`
+    data = {"a" : a, "b" : b, "H" : H, "W": W, "h" : h, "w" : w}
+    with open('./results/config.json', 'w') as file:
+        json.dump(data, file, indent=4)
+    file.close()
+    
     temp1 = np.zeros((H, w//2, 3))
     temp2 = np.zeros((h//2, W+2*(w//2), 3))
     padding = np.hstack((temp1, origin, temp1))
     padding = np.vstack((temp2, padding, temp2))
+    
+    
+    data = {"a" : a, "b" : b, "H" : H, "W": W, "h" : h, "w" : w}
+    with open('./results/config.json', 'w') as file:
+        json.dump(data, file, indent=4)
+    file.close()
 
     # 切分padding后的图片
     cut(a = 11, b = 11, img = padding)
